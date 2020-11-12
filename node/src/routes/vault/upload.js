@@ -48,7 +48,7 @@ module.exports = async (req, res) => {
         }
     }
 
-    if (file.type.includes('image') || file.type.includes('video') || file.type.includes('pdf')) {
+    if (file.type.includes('image') || file.type.includes('video')) {
         if (thumbConfigs) {
             for (let thumbConfig of thumbConfigs) {
 

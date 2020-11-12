@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
 
     const thumbConfigs = config.thumbnail || [];
 
-    let thumbObject = {}, preThumb = `${file.path}-pre-thumb`, thumbReader, thumbnailSize = 0, duration, dimensions, width, height;
+    let thumbObject = {}, preThumb, thumbReader, thumbnailSize = 0, duration, dimensions, width, height;
 
     if (file.type.includes('video')) {
 
@@ -35,6 +35,8 @@ module.exports = async (req, res) => {
         dimensions = await getDimensions(file.path);
         width = dimensions.width;
         height = dimensions.height;
+
+        preThumb = `${file.path}-pre-thumb`;
 
         try {
             await new Promise((resolve, reject) => {
@@ -73,7 +75,6 @@ module.exports = async (req, res) => {
 
                 try {
                     const result = await saveFile(thumbReader, thumbOptions, md5);
-                    fs.unlinkSync(preThumb);
                     fs.unlinkSync(name);
                     thumbObject[thumbConfig.key] = result._id;
                     thumbnailSize += result.length;

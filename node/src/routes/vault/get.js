@@ -1,7 +1,6 @@
 const {createModel} = require("mongoose-gridfs");
 const { findShield } = require("../../dao/shield");
 const { findSession } = require("../../dao/sessions");
-const config = require("../../../config");
 
 module.exports = async (req, res) => {
     const File = createModel();

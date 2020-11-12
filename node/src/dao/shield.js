@@ -38,4 +38,8 @@ const countShields = (query) => {
     return Shield.aggregate([{ $match: query }, { $count: "count" }]).exec();
 };
 
-module.exports = { saveShield, findShield, findShieldGarbageIncluded, findShields, countShields };
+const countDuplicateShields = (query) => {
+    return Shield.countDocuments(query);
+};
+
+module.exports = { saveShield, findShield, findShieldGarbageIncluded, findShields, countShields, countDuplicateShields };

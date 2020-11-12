@@ -1,5 +1,5 @@
 const {createModel} = require('mongoose-gridfs');
-const { findShieldGarbageIncluded } = require("../../dao/shield");
+const { findShieldGarbageIncluded, countDuplicateShields } = require("../../dao/shield");
 const Shield = require('../../models/Shield');
 
 module.exports = async (req, res) => {
@@ -27,11 +27,11 @@ module.exports = async (req, res) => {
 
             try {
                 for (let key of Object.keys(shield.thumbnail || {})) {
-                    const files = await Shield.find(generateQuery(key));
-                    if (files.length === 1) thumbnailResults.push(await File.deleteOne({_id: shield.thumbnail[key]}));
+                    const files = await countDuplicateShields(generateQuery(key));
+                    if (files === 1) thumbnailResults.push(await File.deleteOne({_id: shield.thumbnail[key]}));
                 }
-                const files = await Shield.find(generateQuery());
-                if (files.length === 1) fileResult = await File.deleteOne({_id: shield.file});
+                const files = await countDuplicateShields(generateQuery());
+                if (files === 1) fileResult = await File.deleteOne({_id: shield.file});
             } catch (e) {
                 return res.status(500).json({ status: "error", message: "error while deleting file" });
             }

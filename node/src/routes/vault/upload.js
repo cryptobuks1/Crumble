@@ -6,7 +6,6 @@ const {getVideoDurationInSeconds} = require('get-video-duration');
 const getDimensions = require('get-video-dimensions');
 const sharp = require('sharp');
 const videoThumb = require('video-thumb');
-const pdf = require('pdf-thumbnail');
 const config = require('../../../config');
 const bufferToStream = require('../../utils/bufferToStream');
 const md5File = require('md5-file');
@@ -47,18 +46,6 @@ module.exports = async (req, res) => {
         } catch (e) {
             return res.status(500).json({status: "error", message: "error while generating thumbnail"});
         }
-    }
-
-    if (file.type.includes('pdf')) {
-        const data = await pdf(fs.createReadStream(file.path),  { compress: { type: 'JPEG', quality: 85 } });
-        const out = fs.createWriteStream(preThumb);
-        await new Promise(resolve => {
-            out.on('finish', () => {
-                out.close();
-                resolve();
-            });
-            data.pipe(out);
-        });
     }
 
     if (file.type.includes('image') || file.type.includes('video') || file.type.includes('pdf')) {

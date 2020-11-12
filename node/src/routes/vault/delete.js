@@ -1,5 +1,6 @@
 const {createModel} = require('mongoose-gridfs');
 const { findShieldGarbageIncluded } = require("../../dao/shield");
+const Shield = require('../../models/Shield');
 
 module.exports = async (req, res) => {
     const File = createModel();
@@ -11,10 +12,26 @@ module.exports = async (req, res) => {
 
     if (shield.owner.toString() === req.user.id.toString()) {
         if (permanent) {
-            let fileResult, shieldResult;
+            let fileResult, shieldResult, thumbnailResults = [];
+
+            const generateQuery = key => {
+                const compare = key ? shield.thumbnail[key] : shield.file;
+                let or = [{ file: compare }];
+                for (let key of Object.keys(shield.thumbnail || {})) {
+                    let obj = {};
+                    obj[`thumbnail.${key}`] = compare;
+                    or.push(obj);
+                }
+                return {$or: or};
+            }
 
             try {
-                fileResult = await File.deleteOne({_id: shield.file});
+                for (let key of Object.keys(shield.thumbnail || {})) {
+                    const files = await Shield.find(generateQuery(key));
+                    if (files.length === 1) thumbnailResults.push(await File.deleteOne({_id: shield.thumbnail[key]}));
+                }
+                const files = await Shield.find(generateQuery());
+                if (files.length === 1) fileResult = await File.deleteOne({_id: shield.file});
             } catch (e) {
                 return res.status(500).json({ status: "error", message: "error while deleting file" });
             }
@@ -25,7 +42,7 @@ module.exports = async (req, res) => {
                 return res.status(500).json({ status: "error", message: "error while deleting shield" });
             }
 
-            res.status(200).json({ file: fileResult, shield: shieldResult, status: "deleted" });
+            res.status(200).json({ file: fileResult, shield: shieldResult, thumbnailResults, status: "deleted" });
         }
         else {
             shield.garbage = true;

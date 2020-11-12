@@ -1,7 +1,6 @@
 const { User } = require("../models");
 const config = require("../../config");
-const { randomBytes } = require('crypto');
-const argon2i = require('argon2-ffi').argon2i;
+const argon2 = require('argon2');
 
 const updateRootUser = async () => {
     const rootUser = config.rootUser || {};
@@ -10,8 +9,7 @@ const updateRootUser = async () => {
 
     const user = await User.findOne({ username: rootUser.username || "root" });
 
-    const salt = randomBytes(32);
-    const hash = await argon2i.hash(rootUser.password || "root", salt);
+    const hash = await argon2.hash(rootUser.password || "root");
 
     if (!user) {
         await User.deleteMany({ roles: { $in: ["root"] } });

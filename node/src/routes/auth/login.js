@@ -4,7 +4,7 @@ const config = require('../../../config');
 const secret = config.secret || "default secret";
 const jwt = require('jsonwebtoken');
 const isEmpty = require('../../utils/isEmpty');
-const argon2i = require('argon2-ffi').argon2i;
+const argon2 = require('argon2');
 const { findUserByUsername } = require("../../dao/users");
 
 router.post('*', async (req, res) => {
@@ -25,7 +25,7 @@ router.post('*', async (req, res) => {
 
     if (!user) return res.status(400).json({ status: "error", message: "user not found", username: "user not found" });
 
-    argon2i.verify(user.password, password).then(valid => {
+    argon2.verify(user.password, password).then(valid => {
         if (valid) {
             jwt.sign(
                 { id: user._id, username: user.username }, secret,

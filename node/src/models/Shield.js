@@ -6,6 +6,9 @@ const ShieldSchema = new Schema({
     file: {
         type: Schema.Types.ObjectId,
     },
+    thumbnail: {
+        type: Object,
+    },
     name: {
         type: String,
         required: true
@@ -31,6 +34,10 @@ const ShieldSchema = new Schema({
         required: false
     },
     size: {
+        type: Number,
+        required: true
+    },
+    thumbnailSize: {
         type: Number,
         required: true
     },
@@ -77,7 +84,7 @@ const ShieldSchema = new Schema({
     garbage: {
         type: Boolean,
         default: false,
-    }
+    },
     // groups
 });
 

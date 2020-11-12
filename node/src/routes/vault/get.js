@@ -1,6 +1,7 @@
 const {createModel} = require("mongoose-gridfs");
 const { findShield } = require("../../dao/shield");
 const { findSession } = require("../../dao/sessions");
+const config = require("../../../config");
 
 module.exports = async (req, res) => {
     const File = createModel();
@@ -30,7 +31,11 @@ module.exports = async (req, res) => {
         if (!ok) return res.status(401).json({ error: 'unauthorized user' });
     }
 
-    File.findById(shield.file, (error, file) => {
+    if (req.query.thumbnail && (!shield.thumbnail || !shield.thumbnail[req.query.thumbnail])) {
+        return res.status(404).json({ error: `no ${req.query.thumbnail} thumbnail for this file` });
+    }
+
+    File.findById(req.query.thumbnail ? shield.thumbnail[req.query.thumbnail] : shield.file, (error, file) => {
         const range = req.headers.range;
         if ((file.contentType.includes('video') || file.contentType.includes('audio')) && range) {
             const parts = range.replace(/bytes=/, "").split("-");
